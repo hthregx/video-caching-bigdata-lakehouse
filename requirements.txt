@@ -1,0 +1,8 @@
+pandas
+numpy
+scikit-learn
+matplotlib
+kafka-python
+pyspark
+delta-spark
+jupyter
