@@ -25,7 +25,7 @@ json_df = df.selectExpr(
 query = json_df.writeStream \
     .format("delta") \
     .outputMode("append") \
-    .option("checkpointLocation", "/home/asus/delta/checkpoints/raw_video_logs") \
+    .option("checkpointLocation", "/home/asus/delta/raw_video_logs") \
     .start("/home/asus/delta/raw_video_logs")
 
 query.awaitTermination()
