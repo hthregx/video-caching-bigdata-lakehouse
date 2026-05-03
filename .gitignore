@@ -2,9 +2,6 @@ __pycache__/
 *.pyc
 *.log
 *.tmp
-delta/
-_delta_log/
-*.parquet
 *.csv
 venv/
 .idea/
