@@ -38,7 +38,7 @@ silver_df = silver_df.na.fill({
 silver_df.write \
     .format("delta") \
     .mode("overwrite") \
-    .save("/home/asus/delta/silver_video_logs")
+    .save("/home/asus/delta/clean_video_logs")
 
 print("Silver Layer created successfully!")
 
