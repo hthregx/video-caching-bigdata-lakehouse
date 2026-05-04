@@ -2,7 +2,6 @@ __pycache__/
 *.pyc
 *.log
 *.tmp
-*.csv
 *_SUCCESS
 *.crc
 venv/
