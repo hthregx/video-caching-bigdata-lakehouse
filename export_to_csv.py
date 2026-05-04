@@ -9,20 +9,16 @@ builder = SparkSession.builder \
 
 spark = configure_spark_with_delta_pip(builder).getOrCreate()
 
-# =========================
-# READ DELTA (đúng path)
-# =========================
+# Read Delta
 raw_df = spark.read.format("delta").load("/home/asus/delta/raw_video_logs")
 clean_df = spark.read.format("delta").load("/home/asus/delta/clean_video_logs")
 
-# =========================
+# Export CSV (gộp 1 file)
+raw_df.coalesce(1).write.mode("overwrite").option("header", "true") \
+    .csv("delta/csv/raw_video_logs")
 
-
-# =========================
-# EXPORT CSV  
-# =========================
-raw_df.coalesce(1).write.mode("overwrite").option("header", True).csv("data/csv/raw_video_logs_single")
-clean_df.coalesce(1).write.mode("overwrite").option("header", True).csv("data/csv/clean_video_logs_single")
+clean_df.coalesce(1).write.mode("overwrite").option("header", "true") \
+    .csv("delta/csv/clean_video_logs")
 
 print("Export CSV done!")
 
