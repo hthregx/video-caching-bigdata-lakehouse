@@ -7,3 +7,9 @@ __pycache__/
 venv/
 .idea/
 .vscode/
+venv/
+data/delta/
+data/processed/clean_video_logs_csv/
+spark-warehouse/
+.DS_Store
+notebooks/
