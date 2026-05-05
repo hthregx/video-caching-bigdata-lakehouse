@@ -1,21 +1,22 @@
-metric,value
-total_requests,101461.0
-cached_requests,1616.0
-non_cached_requests,99845.0
-cache_hit_ratio,0.01592730211608401
-origin_request_reduction,0.01592730211608401
-avg_latency_without_cache_ms,200.0
-avg_latency_with_cache_ms,197.45163166142655
-latency_reduction_ms,2.5483683385734537
-latency_reduction_percent,0.012741841692867269
-estimated_origin_cost_before_usd,2.02922
-estimated_origin_cost_after_usd,1.9969000000000001
-estimated_cost_saving_usd,0.032319999999999904
-num_cached_rows,100.0
-num_total_rows,12049.0
-num_unique_cached_videos,91.0
-num_unique_total_videos,1000.0
-cache_threshold,0.6
-origin_latency_ms_assumption,200.0
-cache_latency_ms_assumption,40.0
-cost_per_1000_origin_requests_assumption_usd,0.02
+metric,value,unit,description
+total_requests,153342.0,requests,Total simulated requests based on views_count.
+cache_hits,1774.0,requests,Requests served from cache because cache_decision is CACHE.
+cache_misses,151568.0,requests,Requests still served by the origin server.
+watchlist_requests,7600.0,requests,Requests belonging to WATCHLIST records.
+cache_hit_ratio,0.011569,ratio,Share of requests served by cache.
+origin_request_reduction,0.011569,ratio,Estimated reduction of requests to origin server.
+average_latency_without_cache,300.0,ms,Assumed average latency if all requests go to origin.
+average_latency_with_cache,297.1078,ms,Estimated average latency after applying cache recommendation.
+latency_reduction_ms,2.8922,ms,Estimated latency reduction in milliseconds.
+latency_reduction_percent,0.009641,ratio,Estimated latency reduction ratio.
+estimated_bandwidth_saved,34.6484,GB,Estimated bandwidth saved from cached requests.
+estimated_cost_saved,0.693,USD,Estimated bandwidth cost saved.
+num_cache_records,766.0,records,Number of video-window records recommended for CACHE.
+num_watchlist_records,3789.0,records,Number of video-window records recommended for WATCHLIST.
+num_no_cache_records,71978.0,records,Number of video-window records recommended for NO_CACHE.
+num_unique_cached_videos,766.0,videos,Number of unique videos recommended for CACHE.
+num_unique_total_videos,71619.0,videos,Number of unique videos in prediction output.
+origin_latency_ms_assumption,300.0,ms,Latency assumption for origin server.
+cache_latency_ms_assumption,50.0,ms,Latency assumption for cache server.
+average_request_size_mb_assumption,20.0,MB,Assumed average video request size.
+cost_per_gb_assumption,0.02,USD/GB,Assumed bandwidth cost per GB.
