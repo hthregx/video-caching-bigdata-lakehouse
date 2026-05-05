@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Python
 __pycache__/
 *.pyc
@@ -26,3 +27,20 @@ derby.log
 
 # Logs
 *.log
+=======
+__pycache__/
+*.pyc
+*.log
+*.tmp
+*_SUCCESS
+*.crc
+venv/
+.idea/
+.vscode/
+venv/
+data/delta/
+data/processed/clean_video_logs_csv/
+spark-warehouse/
+.DS_Store
+notebooks/
+>>>>>>> origin/feature/spark-delta-streaming
