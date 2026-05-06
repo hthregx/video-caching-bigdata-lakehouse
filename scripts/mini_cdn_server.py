@@ -11,17 +11,12 @@ from fastapi.responses import JSONResponse
 # CONFIG
 
 ALL_HOT_PATH = Path("outputs/all_hot_videos.csv")
-TOP_HOT_PATH = Path("outputs/top_hot_videos.csv")
 CLEAN_LOG_PATH = Path("data/processed/clean_video_logs.csv")
-
 REQUEST_LOG_PATH = Path("outputs/mini_cdn_request_logs.csv")
 
-# Simulated latency ranges
-# EDGE_CACHE is faster because it is closer to users.
 CACHE_LATENCY_MIN_MS = 30
 CACHE_LATENCY_MAX_MS = 80
 
-# ORIGIN_SERVER is slower because it represents the remote origin server.
 ORIGIN_LATENCY_MIN_MS = 220
 ORIGIN_LATENCY_MAX_MS = 450
 
@@ -67,6 +62,7 @@ cached_records = list(cache_policy.items())
 
 
 # BUILD MISS VIDEO POOL
+
 miss_video_pool = []
 
 if CLEAN_LOG_PATH.exists():
@@ -174,11 +170,8 @@ def serve_video(video_id: str, simulate_delay: bool = True):
 
     request_logs.append(log)
 
-    hit_ratio = get_cache_hit_ratio()
-    avg_latency_ms = get_average_latency_ms()
-
-    log["current_cache_hit_ratio"] = round(hit_ratio, 6)
-    log["current_avg_latency_ms"] = round(avg_latency_ms, 4)
+    log["current_cache_hit_ratio"] = round(get_cache_hit_ratio(), 6)
+    log["current_avg_latency_ms"] = round(get_average_latency_ms(), 4)
 
     if len(request_logs) % 20 == 0:
         save_logs()
@@ -202,7 +195,7 @@ def home():
     return {
         "service": "Mini CDN Cache Server",
         "status": "running",
-        "description": "Use /video/{video_id}, /demo/mixed, /cache/top, /stats",
+        "description": "Use /video/{video_id}, /demo/mixed, /demo/viral, /cache/top, /stats",
         "hot_video_window_records": len(all_hot),
         "cached_unique_videos": len(cached_videos),
         "cache_latency_range_ms": f"{CACHE_LATENCY_MIN_MS}-{CACHE_LATENCY_MAX_MS}",
@@ -212,15 +205,12 @@ def home():
 
 @app.get("/stats")
 def stats():
-    hit_ratio = get_cache_hit_ratio()
-    avg_latency_ms = get_average_latency_ms()
-
     return {
         "total_requests": total_requests,
         "cache_hits": cache_hits,
         "cache_misses": cache_misses,
-        "cache_hit_ratio": round(hit_ratio, 6),
-        "average_latency_ms": round(avg_latency_ms, 4),
+        "cache_hit_ratio": round(get_cache_hit_ratio(), 6),
+        "average_latency_ms": round(get_average_latency_ms(), 4),
         "cache_latency_range_ms": f"{CACHE_LATENCY_MIN_MS}-{CACHE_LATENCY_MAX_MS}",
         "origin_latency_range_ms": f"{ORIGIN_LATENCY_MIN_MS}-{ORIGIN_LATENCY_MAX_MS}",
         "hot_video_window_records": len(all_hot),
@@ -323,7 +313,13 @@ def demo_mixed(
     avg_latency = sum(result["latency_ms"] for result in results) / len(results)
 
     return {
+        "scenario": "Mixed Traffic",
+        "description": (
+            "This scenario mixes cached video requests and non-cached video requests "
+            "based on the selected cache ratio."
+        ),
         "demo_requests": count,
+        "cache_ratio": cache_ratio,
         "cache_hits": hits,
         "cache_misses": misses,
         "cache_hit_ratio": round(hits / count, 6),
@@ -332,11 +328,84 @@ def demo_mixed(
     }
 
 
+@app.get("/demo/viral")
+def demo_viral_traffic(
+    count: int = Query(50, ge=1, le=300),
+    top_k: int = Query(5, ge=1, le=50),
+    viral_ratio: float = Query(0.9, ge=0.0, le=1.0),
+):
+    top_cached_df = (
+        all_hot.sort_values("hot_score", ascending=False)
+        .drop_duplicates(subset=["video_id"], keep="first")
+        .head(top_k)
+    )
+
+    if len(top_cached_df) == 0:
+        return JSONResponse(
+            {
+                "error": "No cached videos available for viral traffic simulation."
+            },
+            status_code=400,
+        )
+
+    viral_video_ids = top_cached_df["video_id"].astype(str).tolist()
+
+    num_viral_requests = int(count * viral_ratio)
+    num_background_requests = count - num_viral_requests
+
+    request_video_ids = []
+
+    for _ in range(num_viral_requests):
+        request_video_ids.append(random.choice(viral_video_ids))
+
+    for _ in range(num_background_requests):
+        request_video_ids.append(random_miss_video_id())
+
+    random.shuffle(request_video_ids)
+
+    results = []
+
+    for video_id in request_video_ids:
+        results.append(serve_video(video_id, simulate_delay=True))
+
+    save_logs()
+
+    hits = sum(1 for result in results if result["status"] == "CACHE_HIT")
+    misses = len(results) - hits
+    avg_latency = sum(result["latency_ms"] for result in results) / len(results)
+
+    baseline_origin_latency = (ORIGIN_LATENCY_MIN_MS + ORIGIN_LATENCY_MAX_MS) / 2
+    latency_saved = baseline_origin_latency - avg_latency
+
+    return {
+        "scenario": "Viral Video Traffic with Background Requests",
+        "description": (
+            "Most requests repeatedly target a small group of top hot cached videos, "
+            "while a smaller share goes to normal non-cached background videos. "
+            "This creates a realistic mix of cache hits and cache misses."
+        ),
+        "demo_requests": count,
+        "top_k_viral_videos": top_k,
+        "viral_ratio": round(viral_ratio, 6),
+        "background_request_ratio": round(1 - viral_ratio, 6),
+        "viral_requests": num_viral_requests,
+        "background_requests": num_background_requests,
+        "viral_video_ids": viral_video_ids,
+        "cache_hits": hits,
+        "cache_misses": misses,
+        "cache_hit_ratio": round(hits / count, 6),
+        "average_latency_ms": round(avg_latency, 4),
+        "baseline_origin_latency_ms": round(baseline_origin_latency, 4),
+        "latency_saved_ms": round(latency_saved, 4),
+        "results": results,
+    }
+
+
 if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
-        "mini_cdn_server:app",
+        app,
         host="127.0.0.1",
         port=8000,
         reload=False,

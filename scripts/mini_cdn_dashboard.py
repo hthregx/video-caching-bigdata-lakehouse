@@ -5,9 +5,7 @@ import streamlit as st
 API_BASE = "http://127.0.0.1:8000"
 
 
-# =========================
 # PAGE CONFIG
-# =========================
 
 st.set_page_config(
     page_title="Mini CDN Cache Dashboard",
@@ -19,9 +17,7 @@ st.title("Mini CDN Cache Dashboard")
 st.caption("Big Data Pipeline → Hot Video Prediction → Cache Recommendation → Mini CDN Simulation")
 
 
-# =========================
 # HELPER FUNCTIONS
-# =========================
 
 def api_get(endpoint: str):
     url = f"{API_BASE}{endpoint}"
@@ -51,9 +47,7 @@ def show_api_error(error):
     st.code(error)
 
 
-# =========================
 # SIDEBAR
-# =========================
 
 st.sidebar.header("Control Panel")
 st.sidebar.write("Mini CDN API")
@@ -67,9 +61,7 @@ if st.sidebar.button("Reset Statistics"):
         st.sidebar.success("Statistics reset successfully.")
 
 
-# =========================
 # CHECK API SERVER
-# =========================
 
 home, error = api_get("/")
 
@@ -80,9 +72,7 @@ if error:
 st.success("Mini CDN API Server is running.")
 
 
-# =========================
 # CURRENT CDN STATISTICS
-# =========================
 
 st.subheader("Current CDN Statistics")
 
@@ -111,9 +101,7 @@ with col5:
     st.metric("Average Latency", f"{stats.get('average_latency_ms', 0):.2f} ms")
 
 
-# =========================
 # LIVE DEMO ACTIONS
-# =========================
 
 st.subheader("Live Demo Actions")
 
@@ -121,6 +109,7 @@ action_col1, action_col2, action_col3 = st.columns(3)
 
 with action_col1:
     st.write("Simulate a request for a cached video")
+
     if st.button("Request Cached Video"):
         result, error = api_get("/demo/cache-hit")
         if error:
@@ -130,6 +119,7 @@ with action_col1:
 
 with action_col2:
     st.write("Simulate a request for a non-cached video")
+
     if st.button("Request Non-Cached Video"):
         result, error = api_get("/demo/cache-miss")
         if error:
@@ -165,9 +155,124 @@ with action_col3:
             st.session_state["mixed_result"] = result
 
 
-# =========================
+# VIRAL VIDEO SCENARIO
+
+st.subheader("Viral Video Scenario")
+
+st.markdown(
+    """
+    This scenario simulates a realistic viral traffic pattern. Most users repeatedly request
+    a small group of top hot videos, while a smaller share of users still request normal
+    non-cached videos. This avoids a perfect 100% cache-hit ratio and better reflects real traffic.
+    """
+)
+
+viral_col1, viral_col2, viral_col3, viral_col4 = st.columns(4)
+
+with viral_col1:
+    viral_count = st.number_input(
+        "Viral Request Count",
+        min_value=1,
+        max_value=300,
+        value=50,
+        step=10,
+    )
+
+with viral_col2:
+    viral_top_k = st.number_input(
+        "Top-K Viral Videos",
+        min_value=1,
+        max_value=50,
+        value=5,
+        step=1,
+    )
+
+with viral_col3:
+    viral_ratio = st.slider(
+        "Viral Traffic Ratio",
+        min_value=0.5,
+        max_value=1.0,
+        value=0.9,
+        step=0.05,
+    )
+
+with viral_col4:
+    st.write("")
+    st.write("")
+
+    if st.button("Simulate Viral Traffic"):
+        endpoint = (
+            f"/demo/viral?"
+            f"count={viral_count}&top_k={viral_top_k}&viral_ratio={viral_ratio}"
+        )
+        result, error = api_get(endpoint)
+        if error:
+            show_api_error(error)
+        else:
+            st.session_state["viral_result"] = result
+
+
+if "viral_result" in st.session_state:
+    st.subheader("Viral Traffic Result")
+
+    viral = st.session_state["viral_result"]
+
+    v1, v2, v3, v4, v5 = st.columns(5)
+
+    with v1:
+        st.metric("Total Viral Scenario Requests", viral.get("demo_requests", 0))
+
+    with v2:
+        st.metric("Cache Hits", viral.get("cache_hits", 0))
+
+    with v3:
+        st.metric("Cache Misses", viral.get("cache_misses", 0))
+
+    with v4:
+        st.metric("Cache Hit Ratio", f"{viral.get('cache_hit_ratio', 0) * 100:.2f}%")
+
+    with v5:
+        st.metric("Average Latency", f"{viral.get('average_latency_ms', 0):.2f} ms")
+
+    traffic_col1, traffic_col2, traffic_col3, traffic_col4 = st.columns(4)
+
+    with traffic_col1:
+        st.metric("Requests to Viral Videos", viral.get("viral_requests", 0))
+
+    with traffic_col2:
+        st.metric("Background Requests", viral.get("background_requests", 0))
+
+    with traffic_col3:
+        st.metric(
+            "Baseline Origin Latency",
+            f"{viral.get('baseline_origin_latency_ms', 0):.2f} ms",
+        )
+
+    with traffic_col4:
+        st.metric(
+            "Latency Saved",
+            f"{viral.get('latency_saved_ms', 0):.2f} ms",
+        )
+
+    st.write("Viral Video IDs")
+    st.code(", ".join(viral.get("viral_video_ids", [])))
+
+    viral_results = viral.get("results", [])
+
+    if len(viral_results) > 0:
+        viral_df = pd.DataFrame(viral_results)
+
+        st.write("Viral Request Details")
+        st.dataframe(viral_df, use_container_width=True)
+
+        viral_chart_df = viral_df["status"].value_counts().reset_index()
+        viral_chart_df.columns = ["Status", "Count"]
+
+        st.write("Viral Traffic Cache Hit / Miss Distribution")
+        st.bar_chart(viral_chart_df, x="Status", y="Count")
+
+
 # MANUAL VIDEO REQUEST
-# =========================
 
 st.subheader("Manual Video Request")
 
@@ -190,9 +295,7 @@ with manual_col2:
     )
 
 
-# =========================
 # LAST REQUEST RESULT
-# =========================
 
 if "last_result" in st.session_state:
     st.subheader("Last Request Result")
@@ -215,14 +318,15 @@ if "last_result" in st.session_state:
         st.metric("Latency", f"{latency_ms} ms")
 
     with r4:
-        st.metric("Current Hit Ratio", f"{result.get('current_cache_hit_ratio', 0) * 100:.2f}%")
+        st.metric(
+            "Current Hit Ratio",
+            f"{result.get('current_cache_hit_ratio', 0) * 100:.2f}%",
+        )
 
     st.json(result)
 
 
-# =========================
 # MIXED DEMO RESULT
-# =========================
 
 if "mixed_result" in st.session_state:
     st.subheader("Mixed Demo Result")
@@ -256,6 +360,7 @@ if "mixed_result" in st.session_state:
 
         st.write("Cache Hit / Miss Distribution")
         st.bar_chart(chart_df, x="Status", y="Count")
+
 
 # TOP CACHED VIDEOS
 
