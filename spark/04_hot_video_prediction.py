@@ -29,15 +29,9 @@ df["hot_score"] = (
     + 0.15 * df["engagement_score"]
 )
 
-# Dùng ngưỡng động theo top percentile thay vì ngưỡng cố định 0.70
-# Top 1% video-window có hot_score cao nhất được xem là HOT
-hot_threshold = df["hot_score"].quantile(0.99)
-
-df["predicted_hot"] = (df["hot_score"] >= hot_threshold).astype(int)
+# Phân loại video hot
+df["predicted_hot"] = (df["hot_score"] >= 0.70).astype(int)
 df["hot_label"] = np.where(df["predicted_hot"] == 1, "HOT", "NOT_HOT")
-
-print(f"Dynamic hot threshold: {hot_threshold:.4f}")
-print(df["hot_label"].value_counts())
 
 prediction_cols = [
     "video_id",
