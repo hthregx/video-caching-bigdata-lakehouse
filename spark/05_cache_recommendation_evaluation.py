@@ -3,10 +3,7 @@ import numpy as np
 from pathlib import Path
 import matplotlib.pyplot as plt
 
-# =========================
 # CONFIG
-# =========================
-
 INPUT_PATH = Path("outputs/hot_video_predictions.csv")
 
 OUTPUT_DIR = Path("outputs")
@@ -18,7 +15,6 @@ EVALUATION_METRICS_PATH = OUTPUT_DIR / "evaluation_metrics.csv"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 CHARTS_DIR.mkdir(parents=True, exist_ok=True)
 
-# Giả định phục vụ đánh giá
 ORIGIN_LATENCY_MS = 300
 CACHE_LATENCY_MS = 50
 AVERAGE_REQUEST_SIZE_MB = 20
@@ -28,9 +24,7 @@ COST_PER_GB = 0.02
 WATCHLIST_TOP_PERCENTILE = 0.95
 
 
-# =========================
 # LOAD INPUT
-# =========================
 
 if not INPUT_PATH.exists():
     raise FileNotFoundError(f"Input file not found: {INPUT_PATH}")
@@ -71,9 +65,7 @@ df.loc[df["predicted_hot"] == 1, "hot_label"] = "HOT"
 df.loc[(df["predicted_hot"] == 0) & (df["hot_label"] != "HOT"), "hot_label"] = "NOT_HOT"
 
 
-# =========================
 # CACHE RECOMMENDATION
-# =========================
 
 non_hot_df = df[df["hot_label"] != "HOT"]
 
@@ -148,9 +140,7 @@ output_cols = [
 cache_df[output_cols].to_csv(CACHE_RECOMMENDATION_PATH, index=False)
 
 
-# =========================
 # EVALUATION
-# =========================
 
 total_requests = int(df["views_count"].sum())
 cache_hits = int(df.loc[df["cache_decision"] == "CACHE", "views_count"].sum())
@@ -312,9 +302,7 @@ metrics = pd.DataFrame([
 metrics.to_csv(EVALUATION_METRICS_PATH, index=False)
 
 
-# =========================
 # CHARTS
-# =========================
 
 # 1. Cache decision distribution
 decision_counts = df["cache_decision"].value_counts()
@@ -415,11 +403,9 @@ if len(top_cached) > 0:
     plt.close()
 
 
-# =========================
 # PRINT SUMMARY
-# =========================
 
-print("===== CACHE RECOMMENDATION SUMMARY =====")
+print("CACHE RECOMMENDATION SUMMARY")
 print("Input rows:", len(df))
 print(df["cache_decision"].value_counts())
 print("Total requests:", total_requests)

@@ -8,9 +8,7 @@ from fastapi import FastAPI, Query
 from fastapi.responses import JSONResponse
 
 
-# =========================
 # CONFIG
-# =========================
 
 ALL_HOT_PATH = Path("outputs/all_hot_videos.csv")
 TOP_HOT_PATH = Path("outputs/top_hot_videos.csv")
@@ -30,9 +28,7 @@ ORIGIN_LATENCY_MAX_MS = 450
 GENERAL_REQUEST_SAMPLE_ROWS = 100000
 
 
-# =========================
 # LOAD CACHE POLICY
-# =========================
 
 if not ALL_HOT_PATH.exists():
     raise FileNotFoundError(f"Missing file: {ALL_HOT_PATH}")
@@ -70,10 +66,7 @@ cached_videos = set(cache_policy.keys())
 cached_records = list(cache_policy.items())
 
 
-# =========================
 # BUILD MISS VIDEO POOL
-# =========================
-
 miss_video_pool = []
 
 if CLEAN_LOG_PATH.exists():
@@ -95,9 +88,7 @@ if len(miss_video_pool) == 0:
     miss_video_pool = [f"origin_only_video_{i}" for i in range(1, 1001)]
 
 
-# =========================
 # APP STATE
-# =========================
 
 app = FastAPI(
     title="Mini CDN Cache Server",
@@ -111,9 +102,7 @@ cache_hits = 0
 cache_misses = 0
 
 
-# =========================
 # HELPER FUNCTIONS
-# =========================
 
 def get_average_latency_ms():
     if len(request_logs) == 0:
@@ -206,9 +195,7 @@ def random_miss_video_id():
     return random.choice(miss_video_pool)
 
 
-# =========================
 # ROUTES
-# =========================
 
 @app.get("/")
 def home():
@@ -344,10 +331,6 @@ def demo_mixed(
         "results": results,
     }
 
-
-# =========================
-# RUN SERVER
-# =========================
 
 if __name__ == "__main__":
     import uvicorn

@@ -152,11 +152,11 @@ feature_df = feature_df.select(
 # Không sort toàn bộ data trước khi ghi vì output có thể hơn 4 triệu dòng
 feature_df = feature_df.persist(StorageLevel.MEMORY_AND_DISK)
 
-print("===== VIDEO FEATURES SUMMARY =====")
+print("VIDEO FEATURES SUMMARY")
 feature_rows = feature_df.count()
 print("Feature rows:", feature_rows)
 
-print("===== TOP 20 FEATURES FOR PREVIEW =====")
+print("TOP 20 FEATURES FOR PREVIEW")
 feature_df.orderBy(col("views_count").desc(), col("growth_rate").desc()).show(20, truncate=False)
 
 write_single_csv(feature_df, OUTPUT_FILE)

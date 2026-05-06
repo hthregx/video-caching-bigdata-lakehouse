@@ -16,7 +16,6 @@ def write_single_csv(df, output_file):
     output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Ghi file tạm trước, chỉ thay file chính khi ghi thành công
     temp_file = output_path.with_suffix(".tmp.csv")
 
     columns = df.columns
@@ -138,14 +137,14 @@ output_df = df.select(
 # Cache để tránh Spark tính lại quá nhiều lần
 output_df = output_df.persist(StorageLevel.MEMORY_AND_DISK)
 
-print("===== HOT VIDEO PREDICTION SUMMARY =====")
+print("HOT VIDEO PREDICTION SUMMARY")
 input_rows = output_df.count()
 print("Input rows:", input_rows)
 print(f"Dynamic hot threshold p{int(HOT_PERCENTILE * 100)}:", threshold)
 
 output_df.groupBy("hot_label").count().show()
 
-print("===== TOP 20 HOT SCORE PREVIEW =====")
+print("TOP 20 HOT SCORE PREVIEW")
 output_df.orderBy(col("hot_score").desc()).show(20, truncate=False)
 
 write_single_csv(output_df, OUTPUT_FILE)

@@ -59,7 +59,7 @@ all_hot = (
 
 top_hot = all_hot.limit(20)
 
-print("===== EXPORT HOT VIDEOS =====")
+print("EXPORT HOT VIDEOS")
 print("All HOT rows:", all_hot.count())
 top_hot.show(20, truncate=False)
 
