@@ -1,1 +1,47 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
 venv/
+.env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.tmp.csv
+*_temp/
+*_SUCCESS
+*.crc
+
+# Data files
+data/raw/
+data/delta/
+data/processed/
+data/clean_video_logs/
+*.zip
+*.tar.gz
+*.parquet
+*.delta
+
+# Generated outputs
+outputs/
+
+# Spark / Hadoop
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Notebooks
+notebooks/
