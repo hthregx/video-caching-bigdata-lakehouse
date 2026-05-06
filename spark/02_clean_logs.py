@@ -2,13 +2,11 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, to_timestamp
 import os
 
-# Đường dẫn tuyệt đối
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW_DELTA_PATH    = os.path.join(BASE_DIR, "data", "delta", "raw_video_logs")
 CLEAN_DELTA_PATH  = os.path.join(BASE_DIR, "data", "delta", "clean_video_logs")
 CHECKPOINT_PATH   = os.path.join(BASE_DIR, "data", "delta", "checkpoints", "clean_video_logs")
 
-# 1. SparkSession
 spark = SparkSession.builder \
     .appName("CleanLogs") \
     .config(
@@ -24,14 +22,12 @@ spark = SparkSession.builder \
 
 spark.sparkContext.setLogLevel("WARN")
 
-# 2. Đọc raw Delta dạng stream
 print(f"Đọc raw Delta từ: {RAW_DELTA_PATH}")
 df_raw = spark.readStream \
     .format("delta") \
     .option("ignoreChanges", "true") \
     .load(RAW_DELTA_PATH)
 
-# 3. Làm sạch & chọn đúng 9 cột
 df_clean = (
     df_raw
     .withColumn("event_time", to_timestamp(col("event_time")))
@@ -54,7 +50,6 @@ df_clean = (
     )
 )
 
-# 4. Ghi clean Delta
 print(f"Ghi clean Delta tại: {CLEAN_DELTA_PATH}")
 query = df_clean.writeStream \
     .format("delta") \
@@ -67,7 +62,6 @@ query = df_clean.writeStream \
 query.awaitTermination()
 print(" clean_video_logs ghi xong!")
 
-# 5. Kiểm tra nhanh
 df_result = spark.read.format("delta").load(CLEAN_DELTA_PATH)
 total = df_result.count()
 print(f"Tổng dòng trong clean_video_logs: {total:,}")
