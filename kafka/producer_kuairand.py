@@ -59,12 +59,10 @@ def produce(file_path, delay=0.01, limit=None):
     for i, (_, row) in enumerate(df.iterrows()):
         try:
             msg = row_to_message(row)
-            # Dùng video_id làm key → cùng video vào cùng partition
             key = str(msg["video_id"]).encode("utf-8")
             producer.send(TOPIC, value=msg, key=key)
             success += 1
 
-            # Log tiến độ mỗi 1000 messages
             if (i + 1) % 1000 == 0:
                 elapsed = time.time() - start_time
                 rate    = (i + 1) / elapsed
@@ -79,7 +77,6 @@ def produce(file_path, delay=0.01, limit=None):
             errors += 1
             print(f"    Lỗi dòng {i}: {e}")
 
-    # Flush đảm bảo gửi hết
     producer.flush()
     producer.close()
 
@@ -91,7 +88,6 @@ def produce(file_path, delay=0.01, limit=None):
     print(f"   Thời gian  : {elapsed:.1f}s")
     print(f"   Tốc độ    : {success/elapsed:.0f} msg/s")
 
-# ── Main ───────────────────────────────────────────────────────────
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="KuaiRand Kafka Producer")
     parser.add_argument(

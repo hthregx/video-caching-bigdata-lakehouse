@@ -19,7 +19,6 @@ DEMO_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 if not STREAM_PATH.exists():
     STREAM_PATH.write_text("", encoding="utf-8")
 
-# Read only needed columns to reduce memory
 cache_header = pd.read_csv(CACHE_PATH, nrows=0).columns.tolist()
 
 base_cols = ["video_id", "hot_score", "hot_label", "cache_decision"]
@@ -36,7 +35,6 @@ cache_df["cache_decision"] = cache_df["cache_decision"].astype(str).str.upper()
 if "cache_priority" not in cache_df.columns:
     cache_df["cache_priority"] = "UNKNOWN"
 
-# For each video_id, keep the highest hot_score decision
 video_policy = (
     cache_df.sort_values("hot_score", ascending=False)
     .drop_duplicates(subset=["video_id"], keep="first")
