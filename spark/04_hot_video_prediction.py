@@ -15,7 +15,6 @@ def min_max_scale(series):
         return series * 0
     return (series - min_value) / (max_value - min_value)
 
-# Chuẩn hóa các feature về 0-1
 df["views_score"] = min_max_scale(df["views_count"])
 df["growth_score"] = min_max_scale(df["growth_rate"].clip(lower=0))
 df["watch_ratio_score"] = min_max_scale(df["avg_watch_ratio"])
@@ -29,7 +28,6 @@ df["hot_score"] = (
     + 0.15 * df["engagement_score"]
 )
 
-# Dùng ngưỡng động theo top percentile thay vì ngưỡng cố định 0.70
 # Top 1% video-window có hot_score cao nhất được xem là HOT
 hot_threshold = df["hot_score"].quantile(0.99)
 

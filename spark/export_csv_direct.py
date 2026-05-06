@@ -11,32 +11,29 @@ spark = SparkSession.builder \
     .appName("ExportCSVDirect") \
     .getOrCreate()
 
-print(f"Đọc file Parquet từ: {CLEAN_DELTA_DIR}")
+print(f"Reading Parquet file from: {CLEAN_DELTA_DIR}")
 df = spark.read.parquet(CLEAN_DELTA_DIR)
 
 total = df.count()
-print(f"Tổng số dòng: {total}")
+print(f"Total rows: {total}")
 
-# Tạo thư mục tạm để ghi CSV phân mảnh
 os.makedirs(TEMP_CSV_DIR, exist_ok=True)
 
-# Ghi CSV ra thư mục tạm (1 file duy nhất do coalesce(1))
 df.coalesce(1).write \
     .mode("overwrite") \
     .option("header", True) \
     .csv(TEMP_CSV_DIR)
 
-# Tìm file part-*.csv trong thư mục tạm và đổi tên thành file đích
 part_files = [f for f in os.listdir(TEMP_CSV_DIR) if f.startswith('part-') and f.endswith('.csv')]
 if part_files:
     src = os.path.join(TEMP_CSV_DIR, part_files[0])
-    # Xóa file đích nếu đã tồn tại
+    # Replace the output file only if the new file was successfully created
     if os.path.exists(CSV_OUTPUT_FILE):
         os.remove(CSV_OUTPUT_FILE)
     shutil.move(src, CSV_OUTPUT_FILE)
-    print(f" Đã xuất CSV thành công: {CSV_OUTPUT_FILE}")
+    print(f" Successfully exported CSV: {CSV_OUTPUT_FILE}")
 else:
-    print(" Không tìm thấy file CSV sau khi ghi!")
+    print(" No CSV file found after writing!")
 
-# Dọn dẹp thư mục tạm
+# Clean up the temporary directory
 shutil.rmtree(TEMP_CSV_DIR, ignore_errors=True)

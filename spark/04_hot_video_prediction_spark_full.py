@@ -137,7 +137,7 @@ output_df = (
     )
 )
 
-print("===== HOT VIDEO PREDICTION FULL DATASET =====")
+print("HOT VIDEO PREDICTION FULL DATASET")
 print(f"Dynamic hot threshold p{int(HOT_PERCENTILE * 100)}: {threshold}")
 print("Exporting hot_video_predictions.csv ...")
 
