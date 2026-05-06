@@ -6,16 +6,13 @@ from pyspark.sql.types import (
 )
 import os
 
-
 # Đường dẫn tuyệt đối (tránh lỗi relative path)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW_DELTA_PATH   = os.path.join(BASE_DIR, "data", "delta", "raw_video_logs")
 CHECKPOINT_PATH  = os.path.join(BASE_DIR, "data", "delta", "checkpoints", "raw_video_logs")
 
-
 # 1. SparkSession  — BẮT BUỘC khai báo packages
-#    (thiếu phần này Kafka + Delta sẽ không load)
 
 spark = SparkSession.builder \
     .appName("KafkaToDelta") \
@@ -28,9 +25,7 @@ spark = SparkSession.builder \
 
 spark.sparkContext.setLogLevel("WARN")
 
-
 # 2. Schema — dùng LongType cho user_id / video_id
-#    (KuaiRand dùng ID lớn, IntegerType sẽ tràn số)
 
 schema = StructType([
     StructField("event_time",  StringType(),  True),
@@ -44,7 +39,6 @@ schema = StructType([
     StructField("is_share",    IntegerType(), True),
 ])
 
-
 # 3. Đọc Kafka
 
 df_kafka = spark.readStream \
@@ -55,7 +49,6 @@ df_kafka = spark.readStream \
     .option("failOnDataLoss", "false") \
     .option("maxOffsetsPerTrigger", "10000") \
     .load()
-
 
 # 4. Parse JSON
 
@@ -68,10 +61,7 @@ df_parsed = (
     .withColumn("duration", col("duration").cast("double"))
 )
 
-
 # 5. Ghi Delta RAW — trigger(availableNow=True)
-#    Xử lý hết toàn bộ offset hiện có rồi TỰ DỪNG
-#    (không dùng trigger này thì script chạy mãi mãi)
 
 print(f" Ghi raw Delta tại: {RAW_DELTA_PATH}")
 

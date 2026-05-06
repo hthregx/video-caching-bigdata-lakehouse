@@ -2,7 +2,6 @@ from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, to_timestamp
 import os
 
-# Đường dẫn tuyệt đối
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 RAW_DELTA_PATH    = os.path.join(BASE_DIR, "data", "delta", "raw_video_logs")
 CLEAN_DELTA_PATH  = os.path.join(BASE_DIR, "data", "delta", "clean_video_logs")

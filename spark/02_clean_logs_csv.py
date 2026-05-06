@@ -10,11 +10,7 @@ if not INPUT_PATH.exists():
     raise FileNotFoundError(f"Input file not found: {INPUT_PATH}")
 
 df = pd.read_csv(INPUT_PATH)
-
-# Chuẩn hóa tên cột
 df.columns = [c.strip().lower() for c in df.columns]
-
-# Đổi tên cột nếu cần
 rename_map = {
     "item_id": "video_id",
     "videoid": "video_id",
@@ -29,7 +25,6 @@ for old_name, new_name in rename_map.items():
     if old_name in df.columns and new_name not in df.columns:
         df = df.rename(columns={old_name: new_name})
 
-# Tạo cột mặc định nếu thiếu
 if "is_click" not in df.columns:
     df["is_click"] = 1
 
@@ -56,7 +51,6 @@ if missing_cols:
 
 raw_count = len(df)
 
-# Ép kiểu
 df["event_time"] = pd.to_datetime(df["event_time"], errors="coerce")
 df["user_id"] = df["user_id"].astype(str)
 df["video_id"] = df["video_id"].astype(str)
