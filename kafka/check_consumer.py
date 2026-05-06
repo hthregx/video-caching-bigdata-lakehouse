@@ -2,12 +2,10 @@
 import json
 from kafka import KafkaConsumer
 
-# ── Cấu hình ──────────────────────────────────────────────────────
 KAFKA_BROKER = "localhost:9092"
 TOPIC        = "video_logs"
 MAX_MESSAGES = 10   
 
-# ── Khởi tạo Consumer ─────────────────────────────────────────────
 consumer = KafkaConsumer(
     TOPIC,
     bootstrap_servers=KAFKA_BROKER,
