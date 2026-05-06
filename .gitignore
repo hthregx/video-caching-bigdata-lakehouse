@@ -1,54 +1,47 @@
-<<<<<<< HEAD
 # Python
 __pycache__/
 *.pyc
-.venv/
+*.pyo
+*.pyd
+
+# Virtual environment
 venv/
+.env/
 
 # Jupyter
 .ipynb_checkpoints/
 
+# OS / IDE
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.tmp.csv
+*_temp/
+*_SUCCESS
+*.crc
+
 # Data files
 data/raw/
 data/delta/
+data/processed/
+data/clean_video_logs/
 *.zip
 *.tar.gz
 *.parquet
 *.delta
 
-# OS
-.DS_Store
-Thumbs.db
+# Generated outputs
+outputs/
 
-# Spark
+# Spark / Hadoop
 spark-warehouse/
 metastore_db/
 derby.log
 
-# Logs
-*.log
-=======
-__pycache__/
-*.pyc
-*.log
-*.tmp
-*_SUCCESS
-*.crc
-venv/
-.idea/
-.vscode/
-venv/
-data/delta/
-data/processed/clean_video_logs_csv/
-spark-warehouse/
-.DS_Store
+# Notebooks
 notebooks/
->>>>>>> origin/feature/spark-delta-streaming
-
-# Local generated data and outputs
-data/processed/
-outputs/
-*.tmp.csv
-*_temp/
-__pycache__/
-
