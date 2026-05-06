@@ -48,3 +48,21 @@
 | `data/sample/kuairand_logs_1000k.csv` | 1,000,000 | 66.7 MB | Benchmark |
 | `data/sample/kuairand_logs_full_clean.csv` | 6,597,399 | 440 MB | Production |
 
+---
+
+## 3. Các bước làm sạch đã thực hiện
+
+1. **Xóa duplicate** — 59,662 dòng bị xóa khỏi log_main
+2. **Tính watch_ratio** — clip về [0,1], duration=0 → NaN
+3. **Chuyển đổi thời gian** — time_ms (ms) → event_time (datetime)
+4. **Chuyển đổi duration** — duration_ms (ms) → duration (giây)
+5. **is_share** — map từ cột `is_forward` của KuaiRand
+
+---
+
+## 4. Lưu ý cho Người 2 (Spark)
+
+- `watch_ratio` có thể là `NaN` nếu `duration = 0` (~7.9% dòng) → cần xử lý khi clean
+- `event_time` là string dạng `"YYYY-MM-DD HH:MM:SS.ffffff"`
+- Kafka topic: **`video_logs`**
+- Mỗi message là 1 dòng JSON như format trên

@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-INPUT_PATH = Path("data/processed/clean_video_logs.csv")
+INPUT_PATH = Path("data/sample/clean_video_logs_sample.csv")
 OUTPUT_PATH = Path("outputs")
 OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
 
