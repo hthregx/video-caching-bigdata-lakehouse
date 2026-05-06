@@ -44,3 +44,11 @@ spark-warehouse/
 .DS_Store
 notebooks/
 >>>>>>> origin/feature/spark-delta-streaming
+
+# Local generated data and outputs
+data/processed/
+outputs/
+*.tmp.csv
+*_temp/
+__pycache__/
+
